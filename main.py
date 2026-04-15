@@ -1,0 +1,73 @@
+# main.py
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+import models, schemas
+from database import engine, SessionLocal
+from auth import hash_password, verify_password
+
+models.Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+
+# DB Dependency
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# ✅ Register
+@app.post("/register")
+def register(user: schemas.RegisterSchema, db: Session = Depends(get_db)):
+
+    if user.email:
+        existing = db.query(models.User).filter(models.User.email == user.email).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Email already registered")
+
+        hashed = hash_password(user.password)
+
+        new_user = models.User(
+            full_name=user.full_name,
+            email=user.email,
+            password=hashed
+        )
+
+    elif user.mobile:
+        existing = db.query(models.User).filter(models.User.mobile == user.mobile).first()
+        if existing:
+            raise HTTPException(status_code=400, detail="Mobile already registered")
+
+        new_user = models.User(
+            full_name=user.full_name,
+            mobile=user.mobile
+        )
+
+    else:
+        raise HTTPException(status_code=400, detail="Provide email or mobile")
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {"message": "User registered successfully"}
+
+# ✅ Login
+@app.post("/login")
+def login(user: schemas.LoginSchema, db: Session = Depends(get_db)):
+
+    if user.email:
+        db_user = db.query(models.User).filter(models.User.email == user.email).first()
+        if not db_user or not verify_password(user.password, db_user.password):
+            raise HTTPException(status_code=401, detail="Invalid email or password")
+
+    elif user.mobile:
+        db_user = db.query(models.User).filter(models.User.mobile == user.mobile).first()
+        if not db_user:
+            raise HTTPException(status_code=401, detail="Mobile not registered")
+
+    else:
+        raise HTTPException(status_code=400, detail="Provide login details")
+
+    return {"message": "Login successful"}
