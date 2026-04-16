@@ -44,41 +44,45 @@ def get_db():
 # ✅ Register
 @app.post("/register")
 def register(user: schemas.RegisterSchema, db: Session = Depends(get_db)):
+    try:
+        if user.email:
+            existing = db.query(models.User).filter(models.User.email == user.email).first()
+            if existing:
+                raise HTTPException(status_code=400, detail="Email already registered")
 
-    if user.email:
-        existing = db.query(models.User).filter(models.User.email == user.email).first()
-        if existing:
-            raise HTTPException(status_code=400, detail="Email already registered")
+            if not user.password or len(user.password) < 6:
+                raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+                
+            hashed = hash_password(user.password)
 
-        if not user.password or len(user.password) < 6:
-            raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
-            
-        hashed = hash_password(user.password)
+            new_user = models.User(
+                full_name=user.full_name,
+                email=user.email,
+                password=hashed
+            )
 
-        new_user = models.User(
-            full_name=user.full_name,
-            email=user.email,
-            password=hashed
-        )
+        elif user.mobile:
+            existing = db.query(models.User).filter(models.User.mobile == user.mobile).first()
+            if existing:
+                raise HTTPException(status_code=400, detail="Mobile already registered")
 
-    elif user.mobile:
-        existing = db.query(models.User).filter(models.User.mobile == user.mobile).first()
-        if existing:
-            raise HTTPException(status_code=400, detail="Mobile already registered")
+            new_user = models.User(
+                full_name=user.full_name,
+                mobile=user.mobile
+            )
 
-        new_user = models.User(
-            full_name=user.full_name,
-            mobile=user.mobile
-        )
+        else:
+            raise HTTPException(status_code=400, detail="Provide email or mobile")
 
-    else:
-        raise HTTPException(status_code=400, detail="Provide email or mobile")
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
 
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return {"message": "User registered successfully"}
+        return {"message": "User registered successfully"}
+    except Exception as e:
+        db.rollback()
+        print(f"Registration Error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Registration failed: {str(e)}")
 
 # ✅ Login
 @app.post("/login")
