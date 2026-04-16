@@ -1,9 +1,12 @@
-# main.py
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import models, schemas
 from database import engine, SessionLocal
+
+load_dotenv()
 from auth import hash_password, verify_password
 
 models.Base.metadata.create_all(bind=engine)
@@ -11,9 +14,16 @@ models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
 # Enable CORS for frontend connectivity
+origins = [
+    "http://localhost:5173",
+    "http://localhost:3000",
+    "https://safe-guard-advisor.vercel.app",
+    "https://safe-guard-advisor.vercel.app/",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins dynamically. In production, change "*" to explicit frontend URLs like ["http://localhost:5173"]
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
