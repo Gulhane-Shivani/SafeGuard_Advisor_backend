@@ -1,0 +1,26 @@
+# ─────────────────────────────────────────────
+#  SafeGuard Advisor – Backend Dependencies
+#  Database: PostgreSQL
+# ─────────────────────────────────────────────
+
+# Web Framework
+fastapi==0.115.12
+
+# ASGI Server
+uvicorn[standard]==0.34.0
+
+# ORM & Database
+sqlalchemy==2.0.40
+
+# Data Validation (Pydantic v2 ships with FastAPI)
+pydantic==2.11.3
+
+# Password Hashing
+passlib[bcrypt]==1.7.4
+bcrypt==4.3.0
+
+# Environment Variables
+python-dotenv==1.1.0
+
+# PostgreSQL Driver
+psycopg2-binary==2.9.10

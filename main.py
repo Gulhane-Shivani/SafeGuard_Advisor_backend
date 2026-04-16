@@ -1,5 +1,6 @@
 # main.py
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import models, schemas
 from database import engine, SessionLocal
@@ -8,6 +9,15 @@ from auth import hash_password, verify_password
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+# Enable CORS for frontend connectivity
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins dynamically. In production, change "*" to explicit frontend URLs like ["http://localhost:5173"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # DB Dependency
 def get_db():
