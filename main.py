@@ -106,4 +106,11 @@ def login(user: schemas.LoginSchema, db: Session = Depends(get_db)):
     else:
         raise HTTPException(status_code=400, detail="Provide login details")
 
-    return {"message": "Login successful"}
+    return {
+        "message": "Login successful",
+        "user": {
+            "full_name": db_user.full_name,
+            "email": db_user.email,
+            "mobile": db_user.mobile
+        }
+    }
