@@ -19,6 +19,8 @@ origins = [
     "http://localhost:3000",
     "https://safe-guard-advisor.vercel.app",
     "https://safe-guard-advisor.vercel.app/",
+    "https://safe-guard-advisor-backend.onrender.com",
+    "postgresql://future_invo_solution:pW0ocqWPIdd15y4HbJKP2HTH2GV1rbz2@dpg-d7gb7p1j2pic738aeu10-a/safeguard_db_3vad"
 ]
 
 app.add_middleware(
