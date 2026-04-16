@@ -44,6 +44,7 @@ def get_db():
 # ✅ Register
 @app.post("/register")
 def register(user: schemas.RegisterSchema, db: Session = Depends(get_db)):
+    print(f"DEBUG: Incoming registration request: {user.dict()}")
     try:
         if user.email:
             existing = db.query(models.User).filter(models.User.email == user.email).first()

@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 class RegisterSchema(BaseModel):
-    full_name: str
+    full_name: Optional[str] = "Anonymous"
     email: Optional[str] = None
     password: Optional[str] = None
     mobile: Optional[str] = None
