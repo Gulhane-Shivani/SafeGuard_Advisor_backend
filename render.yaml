@@ -4,10 +4,12 @@ services:
     env: python
     plan: free
 
-    buildCommand: "./build.sh"
+    buildCommand: "bash build.sh"
     startCommand: "gunicorn -w 2 -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:$PORT"
 
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
       - key: DATABASE_URL
         fromEnvVar: DATABASE_URL
       - key: SECRET_KEY
