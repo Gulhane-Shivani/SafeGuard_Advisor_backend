@@ -1,8 +1,9 @@
 # Web Framework
 fastapi==0.110.0
 
-# ASGI Server
+# ASGI / Production Server
 uvicorn==0.29.0
+gunicorn==21.2.0
 
 # ORM & Database
 sqlalchemy==2.0.29
