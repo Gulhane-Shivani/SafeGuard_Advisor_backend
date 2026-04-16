@@ -1,22 +1,20 @@
 # Web Framework
-fastapi==0.111.0
+fastapi
 
 # ASGI / Production Server
-uvicorn==0.29.0
-gunicorn==21.2.0
+uvicorn
+gunicorn
 
 # ORM & Database
-sqlalchemy==2.0.29
+sqlalchemy
 
 # Data Validation
-pydantic==2.7.1
+pydantic
 
 # Password Hashing
-passlib[bcrypt]==1.7.4
-bcrypt==4.0.1
+passlib[bcrypt]
+bcrypt
 
 # Environment Variables
-python-dotenv==1.0.1
-
-# PostgreSQL Driver
-psycopg2-binary==2.9.9
+python-dotenv
+psycopg2-binary
