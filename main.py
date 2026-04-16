@@ -17,7 +17,11 @@ app = FastAPI()
 origins = [
     "http://localhost:5173",
     "http://localhost:3000",
-    "https://safe-guard-advisor.vercel.app/"
+    "http://127.0.0.1:5173",
+    "http://127.0.0.1:3000",
+    "https://safe-guard-advisor.vercel.app",
+    "https://safeguard-advisor.vercel.app",
+    "https://safeguard-advisor-backend.onrender.com",
 ]
 
 app.add_middleware(
