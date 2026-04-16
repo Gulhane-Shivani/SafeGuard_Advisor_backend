@@ -17,8 +17,7 @@ app = FastAPI()
 origins = [
     "http://localhost:5173",
     "http://localhost:3000",
-    "https://safe-guard-advisor.vercel.app",
-    "https://safe-guard-advisor.vercel.app/",
+    "https://safe-guard-advisor.vercel.app/"
 ]
 
 app.add_middleware(
@@ -51,6 +50,9 @@ def register(user: schemas.RegisterSchema, db: Session = Depends(get_db)):
         if existing:
             raise HTTPException(status_code=400, detail="Email already registered")
 
+        if not user.password or len(user.password) < 6:
+            raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+            
         hashed = hash_password(user.password)
 
         new_user = models.User(
