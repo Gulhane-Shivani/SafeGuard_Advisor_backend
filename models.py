@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean, DateTime
+import datetime
 from database import Base
 
 class User(Base):
@@ -18,3 +19,5 @@ class Contact(Base):
     email = Column(String(100))
     subject = Column(String(200))
     message = Column(String(1000))
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)

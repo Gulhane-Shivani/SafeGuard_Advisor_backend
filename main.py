@@ -174,3 +174,26 @@ def admin_login(admin: schemas.AdminLoginSchema):
 def view_contacts(db: Session = Depends(get_db), current_admin: dict = Depends(get_current_admin)):
     contacts = db.query(models.Contact).all()
     return contacts
+
+# ✅ Admin Delete Contact
+@app.delete("/admin/contacts/{contact_id}")
+def delete_contact(contact_id: int, db: Session = Depends(get_db), current_admin: dict = Depends(get_current_admin)):
+    contact = db.query(models.Contact).filter(models.Contact.id == contact_id).first()
+    if not contact:
+        raise HTTPException(status_code=404, detail="Contact not found")
+    
+    db.delete(contact)
+    db.commit()
+    return {"message": "Contact deleted successfully"}
+
+# ✅ Admin Update Contact Status (Mark as Read)
+@app.patch("/admin/contacts/{contact_id}")
+def update_contact_status(contact_id: int, db: Session = Depends(get_db), current_admin: dict = Depends(get_current_admin)):
+    contact = db.query(models.Contact).filter(models.Contact.id == contact_id).first()
+    if not contact:
+        raise HTTPException(status_code=404, detail="Contact not found")
+    
+    contact.is_read = not getattr(contact, 'is_read', False) # Safety check if column not yet migrated
+    db.commit()
+    db.refresh(contact)
+    return contact
