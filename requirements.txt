@@ -18,3 +18,5 @@ bcrypt==4.0.1
 # Environment Variables
 python-dotenv
 psycopg2-binary
+
+python-jose[cryptography]
