@@ -12,3 +12,16 @@ class LoginSchema(BaseModel):
     email: Optional[str] = None
     password: Optional[str] = None
     mobile: Optional[str] = None
+
+class ContactSchema(BaseModel):
+    name: str
+    email: str
+    subject: str
+    message: str
+
+    class Config:
+        orm_mode = True
+
+class AdminLoginSchema(BaseModel):
+    username: str
+    password: str

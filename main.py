@@ -114,3 +114,63 @@ def login(user: schemas.LoginSchema, db: Session = Depends(get_db)):
             "mobile": db_user.mobile
         }
     }
+
+# ---------------------------------------------------------
+# CONTACT SERVICE ROUTES
+# ---------------------------------------------------------
+
+# ✅ User Submits Contact Form
+@app.post("/contact")
+def submit_contact(contact: schemas.ContactSchema, db: Session = Depends(get_db)):
+    try:
+        new_contact = models.Contact(
+            name=contact.name,
+            email=contact.email,
+            subject=contact.subject,
+            message=contact.message
+        )
+        db.add(new_contact)
+        db.commit()
+        db.refresh(new_contact)
+        return {"message": "Your message has been sent successfully!"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to submit contact: {str(e)}")
+
+# ---------------------------------------------------------
+# ADMIN PANEL ROUTES
+# ---------------------------------------------------------
+
+# Hardcoded Admin Credentials
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "admin_password_123"
+
+from auth import create_access_token, verify_token
+from fastapi.security import OAuth2PasswordBearer
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="admin/login")
+
+def get_current_admin(token: str = Depends(oauth2_scheme)):
+    payload = verify_token(token)
+    if not payload or payload.get("sub") != ADMIN_USERNAME:
+        raise HTTPException(status_code=401, detail="Unauthorized admin access")
+    return payload
+
+# ✅ Admin Login
+@app.post("/admin/login")
+def admin_login(admin: schemas.AdminLoginSchema):
+    if admin.username == ADMIN_USERNAME and admin.password == ADMIN_PASSWORD:
+        access_token = create_access_token(data={"sub": ADMIN_USERNAME})
+        return {
+            "access_token": access_token,
+            "token_type": "bearer",
+            "message": "Admin login successful"
+        }
+    else:
+        raise HTTPException(status_code=401, detail="Invalid admin credentials")
+
+# ✅ Admin View All Contacts
+@app.get("/admin/contacts")
+def view_contacts(db: Session = Depends(get_db), current_admin: dict = Depends(get_current_admin)):
+    contacts = db.query(models.Contact).all()
+    return contacts
