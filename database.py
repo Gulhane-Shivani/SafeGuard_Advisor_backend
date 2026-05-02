@@ -17,10 +17,17 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
     SQLALCHEMY_DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+elif DB_HOST and DB_NAME:
+    SQLALCHEMY_DATABASE_URL = f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 else:
-    SQLALCHEMY_DATABASE_URL = DATABASE_URL or f"postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    # Local SQLite fallback
+    SQLALCHEMY_DATABASE_URL = "sqlite:///./safeguard.db"
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+# Create engine with sqlite-specific args if needed
+if "sqlite" in SQLALCHEMY_DATABASE_URL:
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
 SessionLocal = sessionmaker(
     autocommit=False,

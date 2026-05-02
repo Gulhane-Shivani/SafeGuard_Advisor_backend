@@ -108,11 +108,65 @@ def login(user: schemas.LoginSchema, db: Session = Depends(get_db)):
 
     return {
         "message": "Login successful",
+        "access_token": create_access_token(data={"sub": db_user.email}),
+        "token_type": "bearer",
         "user": {
             "full_name": db_user.full_name,
             "email": db_user.email,
             "mobile": db_user.mobile
         }
+    }
+
+# ---------------------------------------------------------
+# CUSTOMER PORTAL ROUTES
+# ---------------------------------------------------------
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    payload = verify_token(token)
+    if not payload:
+        raise HTTPException(status_code=401, detail="Unauthorized access")
+    email = payload.get("sub")
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
+
+@app.get("/customer/dashboard", response_model=schemas.UserDashboardData)
+def get_customer_dashboard(current_user: models.User = Depends(get_current_user)):
+    # Calculate stats
+    total_policies = len(current_user.policies)
+    pending_claims = len([c for c in current_user.claims if c.status != "Settled"])
+    
+    # Mock totals for now as sum_assured is currently a string in DB
+    stats = {
+        "totalPolicies": total_policies,
+        "totalSumAssured": "₹1.5 Crore",
+        "totalPremium": "₹3,450/mo",
+        "pendingClaims": pending_claims
+    }
+    
+    return {
+        "name": current_user.full_name,
+        "email": current_user.email,
+        "phone": current_user.mobile,
+        "dob": current_user.dob or "15 May 1992",
+        "address": current_user.address or "Flat 402, Green Glen Layout, Bellandur, Bangalore - 560103",
+        "nominee": {
+            "name": current_user.nominee_name or "Sneha Kumar",
+            "relation": current_user.nominee_relation or "Spouse",
+            "dob": current_user.nominee_dob or "10 Jun 1994"
+        },
+        "bankDetails": {
+            "bankName": current_user.bank_name or "HDFC Bank",
+            "accountNumber": current_user.bank_acc_no or "**** 5562",
+            "accountName": current_user.bank_acc_name or current_user.full_name,
+            "ifsc": current_user.bank_ifsc or "HDFC0001234"
+        },
+        "stats": stats,
+        "policies": current_user.policies,
+        "claims": current_user.claims,
+        "service_requests": current_user.service_requests,
+        "notifications": current_user.notifications
     }
 
 # ---------------------------------------------------------
