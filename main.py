@@ -22,15 +22,25 @@ from sqlalchemy import text
 def run_migrations():
     db = SessionLocal()
     try:
-        # Check if status column exists in users table
+        # Check if new columns exist in users table
         if engine.name == 'postgresql':
             db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'Active'"))
+            db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'CUSTOMER'"))
+            db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS primary_branch VARCHAR(100)"))
         else:
             # SQLite doesn't support ADD COLUMN IF NOT EXISTS easily in one line for some versions
             try:
                 db.execute(text("ALTER TABLE users ADD COLUMN status VARCHAR(50) DEFAULT 'Active'"))
             except Exception:
-                pass # Already exists
+                pass
+            try:
+                db.execute(text("ALTER TABLE users ADD COLUMN role VARCHAR(50) DEFAULT 'CUSTOMER'"))
+            except Exception:
+                pass
+            try:
+                db.execute(text("ALTER TABLE users ADD COLUMN primary_branch VARCHAR(100)"))
+            except Exception:
+                pass
         db.commit()
     except Exception as e:
         print(f"Migration error: {e}")
