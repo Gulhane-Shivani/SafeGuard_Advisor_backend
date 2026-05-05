@@ -380,8 +380,8 @@ def create_user(user_data: schemas.AdminCreateUserSchema, db: Session = Depends(
     import secrets
     import string
     
-    # Generate temporary password
-    temp_password = ''.join(secrets.choice(string.ascii_letters + string.digits + "!@#$%") for i in range(10))
+    # Generate temporary password (using a predictable one for demo/testing)
+    temp_password = "Welcome@123"
     hashed_password = hash_password(temp_password)
     
     new_user = models.User(
