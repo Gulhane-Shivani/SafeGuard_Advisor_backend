@@ -27,6 +27,8 @@ def run_migrations():
             db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'Active'"))
             db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'CUSTOMER'"))
             db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS primary_branch VARCHAR(100)"))
+            db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS dob VARCHAR(50)"))
+            db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS nominee_dob VARCHAR(50)"))
         else:
             # SQLite doesn't support ADD COLUMN IF NOT EXISTS easily in one line for some versions
             try:
@@ -39,6 +41,14 @@ def run_migrations():
                 pass
             try:
                 db.execute(text("ALTER TABLE users ADD COLUMN primary_branch VARCHAR(100)"))
+            except Exception:
+                pass
+            try:
+                db.execute(text("ALTER TABLE users ADD COLUMN dob VARCHAR(50)"))
+            except Exception:
+                pass
+            try:
+                db.execute(text("ALTER TABLE users ADD COLUMN nominee_dob VARCHAR(50)"))
             except Exception:
                 pass
         db.commit()
