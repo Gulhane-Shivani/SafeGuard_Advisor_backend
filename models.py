@@ -13,6 +13,9 @@ class User(Base):
     mobile = Column(String(10), unique=True, nullable=True)
     dob = Column(String(50), nullable=True)
     address = Column(String(500), nullable=True)
+    role = Column(String(50), nullable=True, default="CUSTOMER")
+    primary_branch = Column(String(100), nullable=True)
+    status = Column(String(50), nullable=True, default="Active")
     
     # Nominee info
     nominee_name = Column(String(100), nullable=True)
@@ -29,6 +32,7 @@ class User(Base):
     claims = relationship("Claim", back_populates="owner")
     service_requests = relationship("ServiceRequest", back_populates="owner")
     notifications = relationship("Notification", back_populates="owner")
+    payments = relationship("Payment", back_populates="owner")
 
 class Policy(Base):
     __tablename__ = "policies"
@@ -103,3 +107,17 @@ class Contact(Base):
     message = Column(String(1000))
     is_read = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+class Payment(Base):
+    __tablename__ = "payments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    transaction_id = Column(String(50), unique=True, index=True)
+    policy = Column(String(200))
+    amount = Column(String(50))
+    date = Column(String(50))
+    status = Column(String(50))
+    method = Column(String(50))
+    user_id = Column(Integer, ForeignKey("users.id"))
+
+    owner = relationship("User", back_populates="payments")
