@@ -28,29 +28,35 @@ def run_migrations():
             db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'CUSTOMER'"))
             db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS primary_branch VARCHAR(100)"))
             db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS dob VARCHAR(50)"))
+            db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS address VARCHAR(500)"))
+            db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS nominee_name VARCHAR(100)"))
+            db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS nominee_relation VARCHAR(50)"))
             db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS nominee_dob VARCHAR(50)"))
+            db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS bank_name VARCHAR(100)"))
+            db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS bank_acc_no VARCHAR(50)"))
+            db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS bank_acc_name VARCHAR(100)"))
+            db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS bank_ifsc VARCHAR(20)"))
         else:
             # SQLite doesn't support ADD COLUMN IF NOT EXISTS easily in one line for some versions
-            try:
-                db.execute(text("ALTER TABLE users ADD COLUMN status VARCHAR(50) DEFAULT 'Active'"))
-            except Exception:
-                pass
-            try:
-                db.execute(text("ALTER TABLE users ADD COLUMN role VARCHAR(50) DEFAULT 'CUSTOMER'"))
-            except Exception:
-                pass
-            try:
-                db.execute(text("ALTER TABLE users ADD COLUMN primary_branch VARCHAR(100)"))
-            except Exception:
-                pass
-            try:
-                db.execute(text("ALTER TABLE users ADD COLUMN dob VARCHAR(50)"))
-            except Exception:
-                pass
-            try:
-                db.execute(text("ALTER TABLE users ADD COLUMN nominee_dob VARCHAR(50)"))
-            except Exception:
-                pass
+            columns_to_add = [
+                ("status", "VARCHAR(50) DEFAULT 'Active'"),
+                ("role", "VARCHAR(50) DEFAULT 'CUSTOMER'"),
+                ("primary_branch", "VARCHAR(100)"),
+                ("dob", "VARCHAR(50)"),
+                ("address", "VARCHAR(500)"),
+                ("nominee_name", "VARCHAR(100)"),
+                ("nominee_relation", "VARCHAR(50)"),
+                ("nominee_dob", "VARCHAR(50)"),
+                ("bank_name", "VARCHAR(100)"),
+                ("bank_acc_no", "VARCHAR(50)"),
+                ("bank_acc_name", "VARCHAR(100)"),
+                ("bank_ifsc", "VARCHAR(20)")
+            ]
+            for col_name, col_type in columns_to_add:
+                try:
+                    db.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+                except Exception:
+                    pass # Column already exists
         db.commit()
     except Exception as e:
         print(f"Migration error: {e}")
