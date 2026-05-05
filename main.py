@@ -62,6 +62,10 @@ def run_migrations():
         print(f"Migration error: {e}")
     finally:
         db.close()
+        
+    # Ensure super admin exists after schema is updated
+    from fix_db import fix_superadmin
+    fix_superadmin()
 
 # Enable CORS for frontend connectivity
 origins = [
